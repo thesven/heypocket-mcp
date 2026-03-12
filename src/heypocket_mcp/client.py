@@ -264,7 +264,9 @@ class HeyPocketClient:
             for item in self._extract_items(payload)
         ]
         raw_pagination = payload.get("pagination")
-        pagination = cast(dict[str, Any], raw_pagination) if isinstance(raw_pagination, dict) else {}
+        pagination = (
+            cast(dict[str, Any], raw_pagination) if isinstance(raw_pagination, dict) else {}
+        )
         page = pagination.get("page")
         total_pages = pagination.get("total_pages")
         next_cursor: str | None = None
