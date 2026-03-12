@@ -21,7 +21,10 @@ def create_server(
     client = HeyPocketClient(settings)
     mcp = FastMCP(
         name="heypocket-mcp",
-        instructions="Use these tools to access recordings, summaries, upload URLs, audio URLs, and tags from HeyPocket.",
+        instructions=(
+            "Use these tools to access recordings, summaries, upload URLs, "
+            "audio URLs, and tags from HeyPocket."
+        ),
         host=host,
         port=port,
         streamable_http_path=path,
@@ -29,4 +32,3 @@ def create_server(
     )
     register_tools(mcp, client)
     return mcp, client
-

@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import httpx
 import pytest
+from mcp.server.fastmcp import FastMCP
 
 from heypocket_mcp.client import HeyPocketClient
 from heypocket_mcp.config import Settings
 from heypocket_mcp.server import create_server
+from heypocket_mcp.tool_registry import register_tools
 
 
 def make_settings() -> Settings:
@@ -39,9 +41,6 @@ async def test_tool_returns_structured_error_payload() -> None:
     mock_client = HeyPocketClient(settings, transport=httpx.MockTransport(handler), max_retries=0)
     mcp, default_client = create_server(settings)
     await default_client.aclose()
-
-    from heypocket_mcp.tool_registry import register_tools
-    from mcp.server.fastmcp import FastMCP
 
     custom_mcp = FastMCP("heypocket-mcp-test")
     register_tools(custom_mcp, mock_client)

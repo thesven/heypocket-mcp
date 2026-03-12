@@ -40,7 +40,7 @@ class Recording(APIModel):
     raw: dict[str, Any] = Field(default_factory=dict)
 
     @classmethod
-    def from_api(cls, payload: dict[str, Any]) -> "Recording":
+    def from_api(cls, payload: dict[str, Any]) -> Recording:
         tags_payload = payload.get("tags")
         tags: list[Tag] = []
         if isinstance(tags_payload, list):

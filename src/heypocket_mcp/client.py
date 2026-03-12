@@ -43,7 +43,7 @@ class HeyPocketClient:
     async def aclose(self) -> None:
         await self._client.aclose()
 
-    async def __aenter__(self) -> "HeyPocketClient":
+    async def __aenter__(self) -> HeyPocketClient:
         return self
 
     async def __aexit__(self, *_: object) -> None:
@@ -228,8 +228,13 @@ class HeyPocketClient:
         raise HeyPocketError(message, **kwargs)
 
     def _parse_recording_page(self, payload: dict[str, Any]) -> PaginatedResult:
-        items = [Recording.from_api(item).model_dump(mode="json") for item in self._extract_items(payload)]
-        pagination = payload.get("pagination") if isinstance(payload.get("pagination"), dict) else {}
+        items = [
+            Recording.from_api(item).model_dump(mode="json")
+            for item in self._extract_items(payload)
+        ]
+        pagination = (
+            payload.get("pagination") if isinstance(payload.get("pagination"), dict) else {}
+        )
         page = pagination.get("page")
         total_pages = pagination.get("total_pages")
         next_cursor: str | None = None
@@ -293,7 +298,12 @@ class HeyPocketClient:
 
     @staticmethod
     def _unwrap_payload(payload: dict[str, Any]) -> dict[str, Any]:
-        if "data" in payload or "pagination" in payload or "success" in payload or "error" in payload:
+        if (
+            "data" in payload
+            or "pagination" in payload
+            or "success" in payload
+            or "error" in payload
+        ):
             return {
                 "data": payload.get("data"),
                 "error": payload.get("error"),
