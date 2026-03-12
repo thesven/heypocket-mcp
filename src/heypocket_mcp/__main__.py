@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+from typing import Any, cast
 
 from .config import Settings
 from .server import create_server
@@ -25,7 +26,7 @@ def build_parser() -> argparse.ArgumentParser:
 async def _run_async() -> None:
     parser = build_parser()
     args = parser.parse_args()
-    settings = Settings()
+    settings = cast(Any, Settings)()
 
     if args.command == "stdio":
         mcp, client = create_server(settings)
@@ -48,4 +49,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

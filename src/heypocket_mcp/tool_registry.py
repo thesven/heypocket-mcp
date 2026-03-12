@@ -18,6 +18,8 @@ from .models import (
     ToolResult,
 )
 
+ToolContext = Context[Any, Any, Any]
+
 
 def register_tools(mcp: FastMCP, client: HeyPocketClient) -> None:
     """Register all MCP tools and resources."""
@@ -39,7 +41,7 @@ def register_tools(mcp: FastMCP, client: HeyPocketClient) -> None:
         start_date: str | None = None,
         end_date: str | None = None,
         tag_ids: list[str] | None = None,
-        ctx: Context | None = None,
+        ctx: ToolContext | None = None,
     ) -> dict[str, Any]:
         async def execute() -> dict[str, Any]:
             if ctx is not None:

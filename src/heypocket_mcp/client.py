@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
+from typing import Any, cast
 
 import httpx
 
@@ -204,7 +204,7 @@ class HeyPocketClient:
 
     def _handle_response(self, path: str, response: httpx.Response) -> dict[str, Any]:
         try:
-            payload = response.json()
+            payload: Any = response.json()
         except ValueError:
             payload = {"message": response.text}
 
@@ -214,27 +214,57 @@ class HeyPocketClient:
             return {"data": payload}
 
         message, code = self._extract_error(payload)
-        kwargs = {"status_code": response.status_code, "code": code, "endpoint": path}
         if response.status_code in {401, 403}:
-            raise HeyPocketAuthError(message, **kwargs)
+            raise HeyPocketAuthError(
+                message,
+                status_code=response.status_code,
+                code=code,
+                endpoint=path,
+            )
         if response.status_code == 404:
-            raise HeyPocketNotFoundError(message, **kwargs)
+            raise HeyPocketNotFoundError(
+                message,
+                status_code=response.status_code,
+                code=code,
+                endpoint=path,
+            )
         if response.status_code == 422:
-            raise HeyPocketValidationError(message, **kwargs)
+            raise HeyPocketValidationError(
+                message,
+                status_code=response.status_code,
+                code=code,
+                endpoint=path,
+            )
         if response.status_code == 429:
-            raise HeyPocketRateLimitError(message, retryable=True, **kwargs)
+            raise HeyPocketRateLimitError(
+                message,
+                status_code=response.status_code,
+                code=code,
+                retryable=True,
+                endpoint=path,
+            )
         if response.status_code >= 500:
-            raise HeyPocketServerError(message, retryable=True, **kwargs)
-        raise HeyPocketError(message, **kwargs)
+            raise HeyPocketServerError(
+                message,
+                status_code=response.status_code,
+                code=code,
+                retryable=True,
+                endpoint=path,
+            )
+        raise HeyPocketError(
+            message,
+            status_code=response.status_code,
+            code=code,
+            endpoint=path,
+        )
 
     def _parse_recording_page(self, payload: dict[str, Any]) -> PaginatedResult:
         items = [
             Recording.from_api(item).model_dump(mode="json")
             for item in self._extract_items(payload)
         ]
-        pagination = (
-            payload.get("pagination") if isinstance(payload.get("pagination"), dict) else {}
-        )
+        raw_pagination = payload.get("pagination")
+        pagination = cast(dict[str, Any], raw_pagination) if isinstance(raw_pagination, dict) else {}
         page = pagination.get("page")
         total_pages = pagination.get("total_pages")
         next_cursor: str | None = None

@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Literal, cast
+
 from pydantic import AnyHttpUrl, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
 class Settings(BaseSettings):
@@ -16,9 +21,9 @@ class Settings(BaseSettings):
     )
 
     api_key: SecretStr = Field(alias="HEYPOCKET_API_KEY")
-    base_url: AnyHttpUrl = "https://public.heypocketai.com"
+    base_url: AnyHttpUrl = cast(AnyHttpUrl, "https://public.heypocketai.com")
     timeout_seconds: float = 30.0
-    log_level: str = "INFO"
+    log_level: LogLevel = "INFO"
     user_agent_suffix: str | None = None
 
     @property
